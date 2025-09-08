@@ -12,6 +12,7 @@ import * as http from "node:http";
 import {appRoutes} from "./routes";
 import {createConnection} from "./queues/connection";
 import {Channel} from "amqplib";
+import {consumeGigDirectMessage, consumeSeedDirectMessages} from "./queues/gig.consumer";
 
 const SERVER_PORT = 4004;
 const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Gigs Server', 'debug');
@@ -82,6 +83,8 @@ function routesMiddleware(app: Application): void {
 
 async function startQueues(): Promise<void> {
     gigChannel = await createConnection() as Channel;
+    await consumeSeedDirectMessages(gigChannel);
+    await consumeGigDirectMessage(gigChannel);
 }
 
 function startElasticSearch(): void {
