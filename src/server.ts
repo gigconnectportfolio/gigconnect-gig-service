@@ -10,9 +10,12 @@ import hpp from "hpp";
 import helmet from "helmet";
 import * as http from "node:http";
 import {appRoutes} from "./routes";
+import {createConnection} from "./queues/connection";
+import {Channel} from "amqplib";
 
 const SERVER_PORT = 4004;
 const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Gigs Server', 'debug');
+export let gigChannel: Channel;
 
 
 export const start = (app: Application): void => {
@@ -78,7 +81,7 @@ function routesMiddleware(app: Application): void {
 }
 
 async function startQueues(): Promise<void> {
-
+    gigChannel = await createConnection() as Channel;
 }
 
 function startElasticSearch(): void {
