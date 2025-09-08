@@ -3,7 +3,7 @@ import {winstonLogger} from "@kariru-k/gigconnect-shared";
 import {config} from "./config";
 import mongoose from "mongoose";
 
-const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Users Database Server', 'debug');
+const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Gigs Database Server', 'debug');
 
 export const databaseConnection = async (): Promise<void> => {
     try {
