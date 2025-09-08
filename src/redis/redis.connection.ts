@@ -3,7 +3,7 @@ import {Logger} from "winston";
 import {createClient} from "redis";
 import {config} from "../config";
 
-const log: Logger = winstonLogger('Redis Connection', 'Gig Service Redis Connection', 'debug');
+const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Gig Service Redis Connection', 'debug');
 type RedisClientType = ReturnType<typeof createClient>;
 
 const client: RedisClientType = createClient({ url: `${config.REDIS_HOST}`});
