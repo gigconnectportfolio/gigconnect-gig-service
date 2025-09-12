@@ -70,6 +70,24 @@ export async function createIndex(indexName: string): Promise<void> {
 }
 
 /**
+ * This function retrieves the document count from a specified Elasticsearch index.
+ * It returns the count of documents in the index.
+ * If an error occurs, it logs the error and returns 0.
+ * @param {string} index - The name of the Elasticsearch index.
+ * @return {Promise<number>} A promise that resolves to the document count or 0 in case of an error.
+ */
+export async function getDocumentCount(index: string): Promise<number> {
+    try {
+        const result = await elasticSearchClient.count({index});
+        return result.count;
+    } catch (error) {
+        log.error(`Error getting document count from index ${index}`, error);
+        log.log('error', `Gig ElasticSearch Server getDocumentCount() Method`, error);
+        return 0;
+    }
+}
+
+/**
  * This function retrieves a document from a specified Elasticsearch index using the document ID.
  * It returns the document if found, otherwise returns an empty object.
  * The function handles errors by logging them and returning an empty object.

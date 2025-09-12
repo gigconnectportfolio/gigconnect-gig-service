@@ -4,8 +4,9 @@ import {BadRequestError, ISellerGig, uploads} from "@kariru-k/gigconnect-shared"
 import {UploadApiResponse} from "cloudinary";
 import {createGig} from "../services/gig.service";
 import {StatusCodes} from "http-status-codes";
+import {getDocumentCount} from "../elasticsearch";
 
-export const gig = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const gigCreate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const { error } = await gigCreateSchema.validate(req.body);
         if (error?.details) {
@@ -17,10 +18,12 @@ export const gig = async (req: Request, res: Response, next: NextFunction): Prom
             throw new BadRequestError('File upload error', 'create gig() method error');
         }
 
+        const count = await getDocumentCount('gigs');
+
         const gig: ISellerGig = {
             sellerId: req.body.sellerId,
-            username: req.body.username,
-            email: req.body.email,
+            username: req.currentUser?.username,
+            email: req.currentUser?.email,
             profilePicture: req.body.profilePicture,
             title: req.body.title,
             description: req.body.description,
@@ -31,7 +34,8 @@ export const gig = async (req: Request, res: Response, next: NextFunction): Prom
             expectedDelivery: req.body.expectedDelivery,
             basicTitle: req.body.basicTitle,
             basicDescription: req.body.basicDescription,
-            coverImage: `${result?.secure_url}`
+            coverImage: `${result?.secure_url}`,
+            sortId: count + 1
         }
 
         const createdGig = await createGig(gig);
