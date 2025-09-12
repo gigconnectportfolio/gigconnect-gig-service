@@ -6,7 +6,7 @@ import {config} from "../config";
 const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Gig Service Redis Connection', 'debug');
 type RedisClientType = ReturnType<typeof createClient>;
 
-const client: RedisClientType = createClient({ url: `${config.REDIS_HOST}`});
+export const client: RedisClientType = createClient({ url: `${config.REDIS_HOST}`});
 
 export const redisConnect = async (): Promise<void> => {
     try {
