@@ -12,10 +12,14 @@ const config: Config = {
     transform: {
         '^.+\\.ts$': ['ts-jest', {
             useESM: true,
-            tsconfig: 'tsconfig.jest.json' // Explicitly tell ts-jest to use this tsconfig
+            tsconfig: 'tsconfig.jest.json'
+        }],
+        '^.+\\.m?js$': ['ts-jest', { // New entry to transform .mjs or .js files
+            useESM: true,
+            tsconfig: 'tsconfig.jest.json'
         }],
     },
-    transformIgnorePatterns: ['/node_modules/'],
+    transformIgnorePatterns: [],
     moduleNameMapper: {
         '^(\\.{1,2}/.*)\\.js$': '$1', // For relative .js path support
         '^src/(.*)$': '<rootDir>/src/$1', // Add this line for your 'src/*' alias
