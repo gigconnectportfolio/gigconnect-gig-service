@@ -49,7 +49,7 @@
     "dependencies": {
         "@elastic/elasticsearch": "^8.11.0",
         "@faker-js/faker": "^10.0.0",
-        "@kariru-k/gigconnect-shared": "^0.0.20",
+        "@kariru-k/gigconnect-shared": "^0.0.21",
         "amqplib": "^0.10.8",
         "bcryptjs": "^3.0.2",
         "cloudinary": "^2.7.0",
