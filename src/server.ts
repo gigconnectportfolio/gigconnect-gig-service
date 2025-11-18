@@ -12,6 +12,7 @@ import * as http from "node:http";
 import {appRoutes} from "./routes";
 import {createConnection} from "./queues/connection";
 import {Channel} from "amqplib";
+import 'express-async-errors';
 import {consumeGigDirectMessage, consumeSeedDirectMessages} from "./queues/gig.consumer";
 
 const SERVER_PORT = 4004;
