@@ -10,13 +10,14 @@
         "lint:fix": "eslint 'src/**/*.ts' --fix",
         "prettier:check": "prettier --check 'src/**/*.{ts, json}'",
         "prettier:fix": "prettier --write 'src/**/*.{ts, json}'",
-        "start": "pm2 start ./build/src/app.js -i 5 --attach --watch | pino-pretty -c",
+        "start": "pm2 start ./build/src/app.js -i 1 --attach --watch | pino-pretty -c",
         "stop": "pm2 stop all",
         "delete": "pm2 delete all"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
+    "type": "module",
     "description": "",
     "devDependencies": {
         "@jest/types": "^30.0.5",
@@ -49,7 +50,7 @@
     "dependencies": {
         "@elastic/elasticsearch": "^8.11.0",
         "@faker-js/faker": "^10.0.0",
-        "@kariru-k/gigconnect-shared": "^0.0.21",
+        "@kariru-k/gigconnect-shared": "^0.0.29",
         "amqplib": "^0.10.8",
         "bcryptjs": "^3.0.2",
         "cloudinary": "^2.7.0",
