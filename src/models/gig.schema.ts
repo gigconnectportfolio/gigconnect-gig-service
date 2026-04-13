@@ -33,9 +33,9 @@ const gigSchema: Schema<ISellerGig> = new Schema(
     {
         versionKey: false,
         toJSON: {
-            transform(_doc, ret) {
+            transform(_doc, ret: Partial<ISellerGig>) {
                 ret.id = ret._id;
-                delete (ret as any)._id;  // 👈 TS is fine with this
+                delete ret._id;  // 👈 TS is fine with this
                 return ret;
             }
         }

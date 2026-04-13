@@ -157,7 +157,7 @@ export const seedData = async (sellers: ISellerDocument[], count: string): Promi
             email: sellerDoc.email,
             username: sellerDoc.username,
             sellerId: `${sellerDoc._id}`,
-            title: title.length <= 80 ? title : title.substring(0, 77) + '...',
+            title: title.length <= 80 ? title : `${title.substring(0, 77)  }...`,
             description: faker.lorem.paragraphs(2),
             categories: _.sample(categories) as string,
             subCategories: [faker.commerce.department(), faker.commerce.department(), faker.commerce.department(), faker.commerce.department()],
@@ -176,11 +176,10 @@ export const seedData = async (sellers: ISellerDocument[], count: string): Promi
                 five: {value: 0, count: 0},
             },
             sortId: parseInt(count, 10) + (i + 1),
-            basicTitle: basicTitle.length <= 40 ? basicTitle : basicTitle.substring(0, 37) + '...',
-            basicDescription: basicDescription.length <= 100 ? basicDescription : basicDescription.substring(0, 97) + '...',
+            basicTitle: basicTitle.length <= 40 ? basicTitle : `${basicTitle.substring(0, 37)  }...`,
+            basicDescription: basicDescription.length <= 100 ? basicDescription : `${basicDescription.substring(0, 97)  }...`,
         };
 
-        console.log(`*** SEEDING GIG DATA for seller ${sellerDoc.username} ***`);
         await createGig(gig);
     }
 

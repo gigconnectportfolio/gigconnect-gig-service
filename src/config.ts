@@ -1,9 +1,10 @@
 import dotenv from 'dotenv';
 import cloudinary from 'cloudinary';
+import apm from 'elastic-apm-node';
 dotenv.config();
 
-if(process.env.ENABLE_APM === '1'){
-    require('elastic-apm-node').start({
+if (process.env.ENABLE_APM === '1') {
+    apm.start({
         serviceName: 'gig-service',
         serverUrl: process.env.ELASTIC_APM_SERVER_URL,
         secretToken: process.env.ELASTIC_APM_SECRET_TOKEN,
@@ -13,7 +14,7 @@ if(process.env.ENABLE_APM === '1'){
         captureBody: "all",
         errorOnAbortedRequests: true,
         captureErrorLogStackTraces: "always"
-    })
+    });
 }
 
 class Config {

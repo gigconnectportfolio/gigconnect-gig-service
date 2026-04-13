@@ -2,7 +2,6 @@ import {Client, estypes} from "@elastic/elasticsearch";
 import {config} from "./config";
 import {Logger} from "winston";
 import {ISellerGig, winstonLogger} from "@kariru-k/gigconnect-shared";
-import {GetResponse} from "@elastic/elasticsearch/lib/api/types";
 
 const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Gigs ElasticSearch Server', 'debug');
 
@@ -97,7 +96,7 @@ export async function getDocumentCount(index: string): Promise<number> {
  */
 export async function getIndexedData(index: string, itemId: string): Promise<ISellerGig>{
     try {
-        const result: GetResponse = await elasticSearchClient.get({index, id: itemId});
+        const result: estypes.GetResponse = await elasticSearchClient.get({index, id: itemId});
         if (result.found) {
             return result._source as ISellerGig;
         }

@@ -2,7 +2,7 @@ import {NextFunction, Request, Response} from "express";
 import {authUserPayload, gigMockRequest, gigMockResponse, IParams, sellerGig} from "./mocks/gig.mock";
 import {gigCreateSchema} from "../../schemes/gig";
 import {gigCreate} from "../create";
-import {BadRequestError} from "@kariru-k/gigconnect-shared";
+import {BadRequestError, ISearchResult} from "@kariru-k/gigconnect-shared";
 import * as helper from '@kariru-k/gigconnect-shared';
 import * as gigService from 'src/services/gig.service';
 import * as gigCache from 'src/redis/gig.cache';
@@ -12,6 +12,8 @@ import { jest } from '@jest/globals';
 import {gigDelete} from "../delete";
 import {StatusCodes} from "http-status-codes";
 import {gigById, gigsByCategory, moreLikeThis, SellerGigs, sellerInactiveGigs, topRatedGigsByCategory} from "../get";
+import Joi, {ValidationResult} from "joi";
+import {UploadApiResponse} from "cloudinary";
 
 describe('Gig Controller', () => {
     beforeEach(() => {
@@ -27,15 +29,26 @@ describe('Gig Controller', () => {
             const req: Request = gigMockRequest({}, sellerGig, authUserPayload) as unknown as Request;
             const res: Response = gigMockResponse();
             const next = jest.fn();
-            jest.spyOn(gigCreateSchema, 'validate').mockImplementation((): any =>
-                Promise.resolve({
-                    error: {
-                        name: 'ValidationError',
-                        isJoi: true,
-                        details: [{message: 'This is an error message'}]
+            const mockJoiError = new Joi.ValidationError(
+                'Validation Failed',
+                [
+                    {
+                        message: 'This is an error message',
+                        path: ['description'],
+                        type: 'any.required',
+                        context: { key: 'description', label: 'description', value: '' }
                     }
-                })
+                ],
+                {} // This represents the original unvalidated object
             );
+
+            // 2. Mock the implementation synchronously
+            jest.spyOn(gigCreateSchema, 'validate').mockImplementation((): ValidationResult => {
+                return {
+                    error: mockJoiError,
+                    value: null // Or your mock body if needed
+                };
+            });
 
             gigCreate(req, res, next).then(() => {
                 expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
@@ -48,13 +61,11 @@ describe('Gig Controller', () => {
             const next: NextFunction = jest.fn();
 
             // Mock the validate function to pass, as this test is for the file upload logic
-            jest.spyOn(gigCreateSchema, 'validate').mockImplementation((): any =>
-                Promise.resolve({
-                    error: null
-                })
-            );
+            jest.spyOn(gigCreateSchema, 'validate').mockReturnValue({
+                error: undefined
+            } as ValidationResult);
 
-            jest.spyOn(helper, 'uploads').mockImplementation((): any => Promise.resolve())
+            jest.spyOn(helper, 'uploads').mockResolvedValue(undefined);
 
             await gigCreate(req, res, next);
 
@@ -70,15 +81,13 @@ describe('Gig Controller', () => {
             const req: Request = gigMockRequest({}, sellerGig, authUserPayload) as unknown as Request;
             const res: Response = gigMockResponse();
             const next = jest.fn();
-            jest.spyOn(gigCreateSchema, 'validate').mockImplementation((): any =>
-                Promise.resolve({
-                    error: null
-                })
-            );
+            jest.spyOn(gigCreateSchema, 'validate').mockReturnValue({
+                error: undefined
+            } as ValidationResult);
 
-            jest.spyOn(helper, 'uploads').mockImplementation((): any => Promise.resolve({public_id: 'some-id', secure_url: 'some-url'}))
-            jest.spyOn(elasticsearch, 'getDocumentCount').mockImplementation((): any => Promise.resolve(1))
-            jest.spyOn(gigService, 'createGig').mockImplementation((): any => Promise.resolve(sellerGig))
+            jest.spyOn(helper, 'uploads').mockImplementation(() => Promise.resolve({public_id: 'some-id', secure_url: 'some-url'} as UploadApiResponse))
+            jest.spyOn(elasticsearch, 'getDocumentCount').mockResolvedValue(1)
+            jest.spyOn(gigService, 'createGig').mockResolvedValue(sellerGig)
 
             gigCreate(req, res, next).then(() => {
                 expect(res.status).toHaveBeenCalledWith(201);
@@ -257,7 +266,7 @@ describe('Gig Controller', () => {
             };
 
             jest.spyOn(gigCache, 'getUserSelectedGigCategory').mockResolvedValue('programming');
-            jest.spyOn(searchService, 'getTopRatedGigsByCategory').mockResolvedValue(mockSearchResult as any);
+            jest.spyOn(searchService, 'getTopRatedGigsByCategory').mockReturnValue(Promise.resolve(mockSearchResult as ISearchResult));
 
             await topRatedGigsByCategory(req, res, next);
 
@@ -301,7 +310,7 @@ describe('Gig Controller', () => {
             };
 
             jest.spyOn(gigCache, 'getUserSelectedGigCategory').mockResolvedValue('programming');
-            jest.spyOn(searchService, 'gigsSearchByCategory').mockResolvedValue(mockSearchResult as any);
+            jest.spyOn(searchService, 'gigsSearchByCategory').mockReturnValue(Promise.resolve(mockSearchResult as ISearchResult));
 
             await gigsByCategory(req, res, next);
 
@@ -347,7 +356,7 @@ describe('Gig Controller', () => {
                 total: 2,
             };
 
-            jest.spyOn(searchService, 'getMoreGigsLikeThis').mockResolvedValue(mockSearchResult as any);
+            jest.spyOn(searchService, 'getMoreGigsLikeThis').mockReturnValue(Promise.resolve(mockSearchResult as ISearchResult));
 
             await moreLikeThis(req, res, next);
 

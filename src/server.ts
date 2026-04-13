@@ -28,7 +28,7 @@ export const start = (app: Application): void => {
     startQueues();
     startServer(app);
     GigsErrorHandler(app);
-    log.info("Worker with process id of " + process.pid + " on Gigs server has started");
+    log.info(`Worker with process id of ${  process.pid  } on Gigs server has started`);
 };
 
 async function startServer(app: Application): Promise<void> {
@@ -41,7 +41,6 @@ async function startServer(app: Application): Promise<void> {
                 resolve(); // <-- keeps process running
             });
             httpServer.on('error', (err) => {
-                console.error('HTTP server error:', err);
                 reject(err);
             });
         });
@@ -93,7 +92,7 @@ function startElasticSearch(): void {
 }
 
 function GigsErrorHandler(app: Application): void {
-    app.use((err: IErrorResponse, _req: Request, res: Response, _next: NextFunction) => {
+    app.use((err: IErrorResponse, _req: Request, res: Response) => {
         log.log('error', `Gigs Service: Unhandled error: ${err.message}`, err);
         if (err instanceof CustomError){
             res.status(err.statusCode).json(err.serializeError());

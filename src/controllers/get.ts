@@ -39,7 +39,7 @@ export async function sellerInactiveGigs(req: Request, res: Response, next: Next
 export async function topRatedGigsByCategory(req: Request, res: Response, next: NextFunction) {
     try {
         const category = await getUserSelectedGigCategory(`selectedCategories:${req.params.username}`);
-        let resultHits: ISellerGig[] = [];
+        const resultHits: ISellerGig[] = [];
         const gigs: ISearchResult = await getTopRatedGigsByCategory(`${category}`);
         for (const item of gigs.hits){
             resultHits.push(item._source as ISellerGig);
@@ -55,7 +55,7 @@ export async function topRatedGigsByCategory(req: Request, res: Response, next: 
 export async function gigsByCategory(req: Request, res: Response, next: NextFunction) {
     try {
         const category = await getUserSelectedGigCategory(`selectedCategories:${req.params.username}`);
-        let resultHits: ISellerGig[] = [];
+        const resultHits: ISellerGig[] = [];
         const gigs: ISearchResult = await gigsSearchByCategory(`${category}`);
         for (const item of gigs.hits){
             resultHits.push(item._source as ISellerGig);
@@ -70,7 +70,7 @@ export async function gigsByCategory(req: Request, res: Response, next: NextFunc
 
 export async function moreLikeThis(req: Request, res: Response, next: NextFunction) {
     try {
-        let resultHits: ISellerGig[] = [];
+        const resultHits: ISellerGig[] = [];
         const gigs: ISearchResult = await getMoreGigsLikeThis(req.params.gigId);
         for (const item of gigs.hits){
             resultHits.push(item._source as ISellerGig);
