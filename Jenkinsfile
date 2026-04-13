@@ -1,6 +1,6 @@
 def namespace = "production"
-def serviceName = "gigconnect-chat"
-def service = "Gigconnect chat"
+def serviceName = "gigconnect-gig"
+def service = "Gigconnect gig"
 
 def groovyMethods
 
@@ -16,7 +16,7 @@ pipeline {
     environment {
         DOCKER_CREDS = credentials('dockerhub')
         SLACK_WEBHOOK_URL = credentials('slack-webhook-url')
-        IMAGE_NAME = "karirukeith/gigconnect-chat"
+        IMAGE_NAME = "karirukeith/gigconnect-gig"
         IMAGE_TAG = "stable-${BUILD_NUMBER}"
         DOCKER_API_VERSION = '1.40'
     }
@@ -41,7 +41,7 @@ pipeline {
                 }
                 git branch: 'main',
                     credentialsId: 'github',
-                    url: 'https://github.com/gigconnectportfolio/gigconnect-chat-service'
+                    url: 'https://github.com/gigconnectportfolio/gigconnect-gig-service'
 
             }
         }
