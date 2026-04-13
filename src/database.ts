@@ -1,7 +1,7 @@
-import {Logger} from "winston";
-import {winstonLogger} from "@kariru-k/gigconnect-shared";
-import {config} from "./config";
-import mongoose from "mongoose";
+import { Logger } from 'winston';
+import { winstonLogger } from '@kariru-k/gigconnect-shared';
+import { config } from './config';
+import mongoose from 'mongoose';
 
 const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Gigs Database Server', 'debug');
 
@@ -12,4 +12,4 @@ export const databaseConnection = async (): Promise<void> => {
     } catch (error) {
         log.log('error', `GigService databaseConnection() method error:`, error);
     }
-}
+};

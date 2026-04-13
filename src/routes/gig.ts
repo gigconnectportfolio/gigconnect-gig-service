@@ -1,17 +1,10 @@
-import {Router} from "express";
-import {gigCreate} from "../controllers/create";
-import {gigUpdate, gigUpdateActive} from "../controllers/update";
-import {gigDelete} from "../controllers/delete";
-import {
-    gigById,
-    gigsByCategory,
-    moreLikeThis,
-    SellerGigs,
-    sellerInactiveGigs,
-    topRatedGigsByCategory
-} from "../controllers/get";
-import {gigs} from "../controllers/search";
-import {gigSeed} from "../controllers/seed";
+import { Router } from 'express';
+import { gigCreate } from '../controllers/create';
+import { gigUpdate, gigUpdateActive } from '../controllers/update';
+import { gigDelete } from '../controllers/delete';
+import { gigById, gigsByCategory, moreLikeThis, SellerGigs, sellerInactiveGigs, topRatedGigsByCategory } from '../controllers/get';
+import { gigs } from '../controllers/search';
+import { gigSeed } from '../controllers/seed';
 
 const router: Router = Router();
 
@@ -22,11 +15,11 @@ export const gigRoutes = (): Router => {
     router.get('/search/:from/:size/:type', gigs);
     router.get('/category/:username', gigsByCategory);
     router.get('/top/:username', topRatedGigsByCategory);
-    router.get('/similar/:gigId', moreLikeThis)
+    router.get('/similar/:gigId', moreLikeThis);
     router.post('/create', gigCreate);
     router.put('/:gigId', gigUpdate);
     router.put('/active/:gigId', gigUpdateActive);
     router.put('/seed/:count', gigSeed);
     router.delete('/:gigId/:sellerId', gigDelete);
     return router;
-}
+};

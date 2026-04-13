@@ -1,7 +1,7 @@
-import client, {Channel, Connection} from "amqplib";
-import {config} from "../config";
-import {Logger} from "winston";
-import {winstonLogger} from "@kariru-k/gigconnect-shared";
+import client, { Channel, Connection } from 'amqplib';
+import { config } from '../config';
+import { Logger } from 'winston';
+import { winstonLogger } from '@kariru-k/gigconnect-shared';
 
 const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Gigs Service RabbitMQ Connection', 'debug');
 
@@ -17,7 +17,7 @@ export async function createConnection(): Promise<Channel | undefined> {
         connection = await client.connect(`${config.RABBITMQ_ENDPOINT}`);
         channel = await connection.createChannel();
 
-        log.info("✅ Gigs Server Connected To Queue Successfully");
+        log.info('✅ Gigs Server Connected To Queue Successfully');
 
         // Handle graceful shutdown once
         setupGracefulShutdown(connection, channel);

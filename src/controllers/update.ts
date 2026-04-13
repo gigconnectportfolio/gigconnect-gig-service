@@ -1,9 +1,9 @@
-import {NextFunction, Request, Response} from "express";
-import {gigUpdateSchema} from "../schemes/gig";
-import {BadRequestError, isDataURL, ISellerGig, uploads} from "@kariru-k/gigconnect-shared";
-import {UploadApiResponse} from "cloudinary";
-import {updateActiveGigProp, updateGig} from "../services/gig.service";
-import {StatusCodes} from "http-status-codes";
+import { NextFunction, Request, Response } from 'express';
+import { gigUpdateSchema } from '../schemes/gig';
+import { BadRequestError, isDataURL, ISellerGig, uploads } from '@kariru-k/gigconnect-shared';
+import { UploadApiResponse } from 'cloudinary';
+import { updateActiveGigProp, updateGig } from '../services/gig.service';
+import { StatusCodes } from 'http-status-codes';
 
 export const gigUpdate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -15,8 +15,8 @@ export const gigUpdate = async (req: Request, res: Response, next: NextFunction)
         const isDataUrl = isDataURL(req.body.coverImage);
         let coverImage = '';
 
-        if(isDataUrl){
-            const result: UploadApiResponse =  await uploads(req.body.coverImage) as UploadApiResponse;
+        if (isDataUrl) {
+            const result: UploadApiResponse = (await uploads(req.body.coverImage)) as UploadApiResponse;
             if (!result?.public_id) {
                 throw new BadRequestError('File upload error', 'Update gig() method error');
             }
@@ -36,17 +36,16 @@ export const gigUpdate = async (req: Request, res: Response, next: NextFunction)
             expectedDelivery: req.body.expectedDelivery,
             basicTitle: req.body.basicTitle,
             basicDescription: req.body.basicDescription,
-            coverImage: coverImage,
-        }
+            coverImage: coverImage
+        };
 
         const updatedGig = await updateGig(req.params.gigId, gig);
 
         res.status(StatusCodes.OK).json({ message: 'Gig updated successfully', gig: updatedGig });
-
     } catch (error) {
         next(error);
     }
-}
+};
 
 export const gigUpdateActive = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -55,4 +54,4 @@ export const gigUpdateActive = async (req: Request, res: Response, next: NextFun
     } catch (error) {
         next(error);
     }
-}
+};

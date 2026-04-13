@@ -1,19 +1,19 @@
-import {NextFunction, Request, Response} from "express";
-import {authUserPayload, gigMockRequest, gigMockResponse, IParams, sellerGig} from "./mocks/gig.mock";
-import {gigCreateSchema} from "../../schemes/gig";
-import {gigCreate} from "../create";
-import {BadRequestError, ISearchResult} from "@kariru-k/gigconnect-shared";
+import { NextFunction, Request, Response } from 'express';
+import { authUserPayload, gigMockRequest, gigMockResponse, IParams, sellerGig } from './mocks/gig.mock';
+import { gigCreateSchema } from '../../schemes/gig';
+import { gigCreate } from '../create';
+import { BadRequestError, ISearchResult } from '@kariru-k/gigconnect-shared';
 import * as helper from '@kariru-k/gigconnect-shared';
 import * as gigService from 'src/services/gig.service';
 import * as gigCache from 'src/redis/gig.cache';
 import * as searchService from 'src/services/search.service';
 import * as elasticsearch from 'src/elasticsearch';
 import { jest } from '@jest/globals';
-import {gigDelete} from "../delete";
-import {StatusCodes} from "http-status-codes";
-import {gigById, gigsByCategory, moreLikeThis, SellerGigs, sellerInactiveGigs, topRatedGigsByCategory} from "../get";
-import Joi, {ValidationResult} from "joi";
-import {UploadApiResponse} from "cloudinary";
+import { gigDelete } from '../delete';
+import { StatusCodes } from 'http-status-codes';
+import { gigById, gigsByCategory, moreLikeThis, SellerGigs, sellerInactiveGigs, topRatedGigsByCategory } from '../get';
+import Joi, { ValidationResult } from 'joi';
+import { UploadApiResponse } from 'cloudinary';
 
 describe('Gig Controller', () => {
     beforeEach(() => {
@@ -22,7 +22,7 @@ describe('Gig Controller', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
-    })
+    });
 
     describe('Gig Create Method', () => {
         it('should call next with BadRequestError for invalid schema data', () => {
@@ -55,7 +55,7 @@ describe('Gig Controller', () => {
             });
         });
 
-        it('should call next with BadRequestError for file upload error', async() => {
+        it('should call next with BadRequestError for file upload error', async () => {
             const req: Request = gigMockRequest({}, sellerGig, authUserPayload) as unknown as Request;
             const res: Response = gigMockResponse();
             const next: NextFunction = jest.fn();
@@ -71,10 +71,12 @@ describe('Gig Controller', () => {
 
             // Fixed assertion to check for an instance of BadRequestError and its properties.
             const errorInstance = new BadRequestError('File upload error', 'create gig() method error');
-            expect(next).toHaveBeenCalledWith(expect.objectContaining({
-                name: errorInstance.name,
-                message: errorInstance.message,
-            }));
+            expect(next).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    name: errorInstance.name,
+                    message: errorInstance.message
+                })
+            );
         });
 
         it('should return StatusCodes.Created and Json with message and createdGig', () => {
@@ -85,9 +87,11 @@ describe('Gig Controller', () => {
                 error: undefined
             } as ValidationResult);
 
-            jest.spyOn(helper, 'uploads').mockImplementation(() => Promise.resolve({public_id: 'some-id', secure_url: 'some-url'} as UploadApiResponse))
-            jest.spyOn(elasticsearch, 'getDocumentCount').mockResolvedValue(1)
-            jest.spyOn(gigService, 'createGig').mockResolvedValue(sellerGig)
+            jest.spyOn(helper, 'uploads').mockImplementation(() =>
+                Promise.resolve({ public_id: 'some-id', secure_url: 'some-url' } as UploadApiResponse)
+            );
+            jest.spyOn(elasticsearch, 'getDocumentCount').mockResolvedValue(1);
+            jest.spyOn(gigService, 'createGig').mockResolvedValue(sellerGig);
 
             gigCreate(req, res, next).then(() => {
                 expect(res.status).toHaveBeenCalledWith(201);
@@ -95,9 +99,9 @@ describe('Gig Controller', () => {
                     message: 'Gig created successfully',
                     gig: sellerGig
                 });
-            })
+            });
         });
-    })
+    });
     describe('Gig Delete Method', () => {
         it('should return StatusCodes.OK and a success message', async () => {
             // Refactored to use the single gigMockRequest
@@ -262,7 +266,7 @@ describe('Gig Controller', () => {
 
             const mockSearchResult = {
                 hits: [{ _source: sellerGig }, { _source: sellerGig }],
-                total: 2,
+                total: 2
             };
 
             jest.spyOn(gigCache, 'getUserSelectedGigCategory').mockResolvedValue('programming');
@@ -274,7 +278,7 @@ describe('Gig Controller', () => {
             expect(res.json).toHaveBeenCalledWith({
                 message: 'Top rated gigs fetched successfully',
                 total: 2,
-                gigs: [sellerGig, sellerGig],
+                gigs: [sellerGig, sellerGig]
             });
         });
 
@@ -306,7 +310,7 @@ describe('Gig Controller', () => {
 
             const mockSearchResult = {
                 hits: [{ _source: sellerGig }, { _source: sellerGig }],
-                total: 2,
+                total: 2
             };
 
             jest.spyOn(gigCache, 'getUserSelectedGigCategory').mockResolvedValue('programming');
@@ -318,7 +322,7 @@ describe('Gig Controller', () => {
             expect(res.json).toHaveBeenCalledWith({
                 message: 'Search Gigs Category Result',
                 total: 2,
-                gigs: [sellerGig, sellerGig],
+                gigs: [sellerGig, sellerGig]
             });
         });
 
@@ -353,7 +357,7 @@ describe('Gig Controller', () => {
 
             const mockSearchResult = {
                 hits: [{ _source: sellerGig }, { _source: sellerGig }],
-                total: 2,
+                total: 2
             };
 
             jest.spyOn(searchService, 'getMoreGigsLikeThis').mockReturnValue(Promise.resolve(mockSearchResult as ISearchResult));
@@ -364,7 +368,7 @@ describe('Gig Controller', () => {
             expect(res.json).toHaveBeenCalledWith({
                 message: 'More Gigs Like This Result',
                 total: 2,
-                gigs: [sellerGig, sellerGig],
+                gigs: [sellerGig, sellerGig]
             });
         });
 
@@ -388,4 +392,4 @@ describe('Gig Controller', () => {
             expect(res.json).not.toHaveBeenCalled();
         });
     });
-})
+});

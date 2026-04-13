@@ -1,10 +1,10 @@
-import {NextFunction, Request, Response} from "express";
-import {gigCreateSchema} from "../schemes/gig";
-import {BadRequestError, ISellerGig, uploads} from "@kariru-k/gigconnect-shared";
-import {UploadApiResponse} from "cloudinary";
-import {createGig} from "../services/gig.service";
-import {StatusCodes} from "http-status-codes";
-import {getDocumentCount} from "../elasticsearch";
+import { NextFunction, Request, Response } from 'express';
+import { gigCreateSchema } from '../schemes/gig';
+import { BadRequestError, ISellerGig, uploads } from '@kariru-k/gigconnect-shared';
+import { UploadApiResponse } from 'cloudinary';
+import { createGig } from '../services/gig.service';
+import { StatusCodes } from 'http-status-codes';
+import { getDocumentCount } from '../elasticsearch';
 
 export const gigCreate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -13,7 +13,7 @@ export const gigCreate = async (req: Request, res: Response, next: NextFunction)
             throw new BadRequestError(error.details[0].message, 'create gig() method error');
         }
 
-        const result: UploadApiResponse =  await uploads(req.body.coverImage) as UploadApiResponse;
+        const result: UploadApiResponse = (await uploads(req.body.coverImage)) as UploadApiResponse;
         if (!result?.public_id) {
             throw new BadRequestError('File upload error', 'create gig() method error');
         }
@@ -36,13 +36,12 @@ export const gigCreate = async (req: Request, res: Response, next: NextFunction)
             basicDescription: req.body.basicDescription,
             coverImage: `${result?.secure_url}`,
             sortId: count + 1
-        }
+        };
 
         const createdGig = await createGig(gig);
 
         res.status(StatusCodes.CREATED).json({ message: 'Gig created successfully', gig: createdGig });
-
     } catch (error) {
         next(error);
     }
-}
+};

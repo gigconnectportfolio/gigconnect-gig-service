@@ -1,5 +1,5 @@
-import {Request, Response} from "express";
-import {StatusCodes} from "http-status-codes";
+import { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
 /*
     This function serves as a health check endpoint for the Gigs Service.

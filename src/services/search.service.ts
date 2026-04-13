@@ -1,6 +1,6 @@
-import {IHitsTotal, IPaginateProps, IQueryList, ISearchResult} from "@kariru-k/gigconnect-shared";
-import {estypes} from "@elastic/elasticsearch";
-import {elasticSearchClient} from "../elasticsearch";
+import { IHitsTotal, IPaginateProps, IQueryList, ISearchResult } from '@kariru-k/gigconnect-shared';
+import { estypes } from '@elastic/elasticsearch';
+import { elasticSearchClient } from '../elasticsearch';
 
 /**
     This function searches for gigs by seller ID and active status in the Elasticsearch index.
@@ -13,14 +13,15 @@ export async function gigsSearchBySellerId(searchQuery: string, active: boolean)
         {
             query_string: {
                 fields: ['sellerId'],
-                query: `*${searchQuery}*`,
+                query: `*${searchQuery}*`
             }
         },
         {
             term: {
                 active: active
             }
-        }];
+        }
+    ];
 
     const result: estypes.SearchResponse = await elasticSearchClient.search({
         index: 'gigs',
@@ -28,7 +29,7 @@ export async function gigsSearchBySellerId(searchQuery: string, active: boolean)
             bool: {
                 must: [...queryList]
             }
-        },
+        }
     });
 
     const total: IHitsTotal = result.hits.total as IHitsTotal;
@@ -36,7 +37,7 @@ export async function gigsSearchBySellerId(searchQuery: string, active: boolean)
     return {
         total: total.value,
         hits: result.hits.hits
-    }
+    };
 }
 
 /**
@@ -52,26 +53,33 @@ export async function gigsSearchBySellerId(searchQuery: string, active: boolean)
     @param {number} [max] - Optional maximum price filter.
     @returns {Promise<ISearchResult>} A promise that resolves to an ISearchResult object containing total hits and search results.
  **/
-export async function gigsSearch(searchQuery: string, paginate: IPaginateProps, deliveryTime?: string, min?: number, max?: number): Promise<ISearchResult> {
+export async function gigsSearch(
+    searchQuery: string,
+    paginate: IPaginateProps,
+    deliveryTime?: string,
+    min?: number,
+    max?: number
+): Promise<ISearchResult> {
     const { from, size, type } = paginate;
     const queryList: IQueryList[] = [
         {
             query_string: {
-                fields: ["username", "title", "description", "basicDescription", "basicTitle", "categories", "subCategories", "tags"],
-                query: `*${searchQuery}*`,
+                fields: ['username', 'title', 'description', 'basicDescription', 'basicTitle', 'categories', 'subCategories', 'tags'],
+                query: `*${searchQuery}*`
             }
         },
         {
             term: {
                 active: true
             }
-        }];
+        }
+    ];
 
     if (deliveryTime) {
         queryList.push({
             query_string: {
-                fields: ["expectedDelivery"],
-                query: `*${deliveryTime}*`,
+                fields: ['expectedDelivery'],
+                query: `*${deliveryTime}*`
             }
         });
     }
@@ -86,7 +94,6 @@ export async function gigsSearch(searchQuery: string, paginate: IPaginateProps, 
             }
         });
     }
-
 
     const result: estypes.SearchResponse = await elasticSearchClient.search({
         index: 'gigs',
@@ -109,7 +116,7 @@ export async function gigsSearch(searchQuery: string, paginate: IPaginateProps, 
     return {
         total: total.value,
         hits: result.hits.hits
-    }
+    };
 }
 
 /**
@@ -119,7 +126,6 @@ export async function gigsSearch(searchQuery: string, paginate: IPaginateProps, 
     @returns {Promise<ISearchResult>} A promise that resolves to an ISearchResult object containing total hits and search results.
  **/
 export async function gigsSearchByCategory(searchQuery: string): Promise<ISearchResult> {
-
     const result: estypes.SearchResponse = await elasticSearchClient.search({
         index: 'gigs',
         size: 10,
@@ -128,8 +134,8 @@ export async function gigsSearchByCategory(searchQuery: string): Promise<ISearch
                 must: [
                     {
                         query_string: {
-                            fields: ["categories"],
-                            query: `*${searchQuery}*`,
+                            fields: ['categories'],
+                            query: `*${searchQuery}*`
                         }
                     },
                     {
@@ -147,7 +153,7 @@ export async function gigsSearchByCategory(searchQuery: string): Promise<ISearch
     return {
         total: total.value,
         hits: result.hits.hits
-    }
+    };
 }
 
 /**
@@ -156,19 +162,19 @@ export async function gigsSearchByCategory(searchQuery: string): Promise<ISearch
     @param {string} gigId - The ID of the gig to find similar gigs for.
     @returns {Promise<ISearchResult>} A promise that resolves to an ISearchResult object containing total hits and search results.
  **/
-export async function getMoreGigsLikeThis (gigId: string): Promise<ISearchResult>  {
+export async function getMoreGigsLikeThis(gigId: string): Promise<ISearchResult> {
     const result: estypes.SearchResponse = await elasticSearchClient.search({
         index: 'gigs',
         size: 5,
         query: {
             more_like_this: {
-                fields: ["title", "description", "basicDescription", "basicTitle", "categories", "subCategories", "tags"],
+                fields: ['title', 'description', 'basicDescription', 'basicTitle', 'categories', 'subCategories', 'tags'],
                 like: [
                     {
                         _index: 'gigs',
                         _id: gigId
                     }
-                ],
+                ]
             }
         }
     });
@@ -178,7 +184,7 @@ export async function getMoreGigsLikeThis (gigId: string): Promise<ISearchResult
     return {
         total: total.value,
         hits: result.hits.hits
-    }
+    };
 }
 
 /**
@@ -201,14 +207,14 @@ export async function getTopRatedGigsByCategory(searchQuery: string): Promise<IS
                             params: {
                                 threshold: 5
                             }
+                        }
                     }
-                }
-            },
+                },
                 must: [
                     {
                         query_string: {
-                            fields: ["categories"],
-                            query: `*${searchQuery}*`,
+                            fields: ['categories'],
+                            query: `*${searchQuery}*`
                         }
                     },
                     {
@@ -217,8 +223,8 @@ export async function getTopRatedGigsByCategory(searchQuery: string): Promise<IS
                         }
                     }
                 ]
-        }}
-
+            }
+        }
     });
 
     const total: IHitsTotal = result.hits.total as IHitsTotal;
@@ -226,5 +232,5 @@ export async function getTopRatedGigsByCategory(searchQuery: string): Promise<IS
     return {
         total: total.value,
         hits: result.hits.hits
-    }
+    };
 }

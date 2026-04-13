@@ -1,12 +1,12 @@
-import {winstonLogger} from "@kariru-k/gigconnect-shared";
-import {Logger} from "winston";
-import {createClient} from "redis";
-import {config} from "../config";
+import { winstonLogger } from '@kariru-k/gigconnect-shared';
+import { Logger } from 'winston';
+import { createClient } from 'redis';
+import { config } from '../config';
 
 const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Gig Service Redis Connection', 'debug');
 type RedisClientType = ReturnType<typeof createClient>;
 
-export const client: RedisClientType = createClient({ url: `${config.REDIS_HOST}`});
+export const client: RedisClientType = createClient({ url: `${config.REDIS_HOST}` });
 
 export const redisConnect = async (): Promise<void> => {
     try {
@@ -16,4 +16,4 @@ export const redisConnect = async (): Promise<void> => {
     } catch (error) {
         log.error('❌ Gig Service Redis Connection Error', error);
     }
-}
+};

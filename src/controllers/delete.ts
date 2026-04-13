@@ -1,6 +1,6 @@
-import {deleteGig} from "../services/gig.service";
-import {StatusCodes} from "http-status-codes";
-import {NextFunction, Request, Response} from "express";
+import { deleteGig } from '../services/gig.service';
+import { StatusCodes } from 'http-status-codes';
+import { NextFunction, Request, Response } from 'express';
 
 export const gigDelete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -9,4 +9,4 @@ export const gigDelete = async (req: Request, res: Response, next: NextFunction)
     } catch (error) {
         next(error);
     }
-}
+};

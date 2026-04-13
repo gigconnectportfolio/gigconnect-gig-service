@@ -1,14 +1,13 @@
-import {Client, estypes} from "@elastic/elasticsearch";
-import {config} from "./config";
-import {Logger} from "winston";
-import {ISellerGig, winstonLogger} from "@kariru-k/gigconnect-shared";
+import { Client, estypes } from '@elastic/elasticsearch';
+import { config } from './config';
+import { Logger } from 'winston';
+import { ISellerGig, winstonLogger } from '@kariru-k/gigconnect-shared';
 
 const log: Logger = winstonLogger(`${config.ELASTIC_SEARCH_URL}`, 'Gigs ElasticSearch Server', 'debug');
 
 export const elasticSearchClient = new Client({
-    node: `${config.ELASTIC_SEARCH_URL}`,
+    node: `${config.ELASTIC_SEARCH_URL}`
 });
-
 
 /**
     This function checks the connection to the Elasticsearch cluster by querying its health status.
@@ -24,7 +23,7 @@ export async function checkConnection(): Promise<void> {
             log.info(`Gigs ElasticSearch Server ElasticSearch health status: ${response.status}`);
             isConnected = true;
         } catch (error) {
-            log.error("Failed to connect to ElasticSearch", error);
+            log.error('Failed to connect to ElasticSearch', error);
             log.log('error', 'Gigs ElasticSearch Server checkConnection() Method', error);
         }
     }
@@ -38,7 +37,7 @@ export async function checkConnection(): Promise<void> {
  **/
 async function checkifIndexExists(indexName: string): Promise<boolean> {
     try {
-        return await elasticSearchClient.indices.exists({index: indexName});
+        return await elasticSearchClient.indices.exists({ index: indexName });
     } catch (error) {
         log.error(`Error checking if index ${indexName} exists`, error);
         return false;
@@ -56,8 +55,8 @@ export async function createIndex(indexName: string): Promise<void> {
     try {
         const indexExists = await checkifIndexExists(indexName);
         if (!indexExists) {
-            await elasticSearchClient.indices.create({index: indexName});
-            await elasticSearchClient.indices.refresh({index: indexName});
+            await elasticSearchClient.indices.create({ index: indexName });
+            await elasticSearchClient.indices.refresh({ index: indexName });
             log.info(`Index ${indexName} created successfully`);
         } else {
             log.info(`Index ${indexName} already exists`);
@@ -77,7 +76,7 @@ export async function createIndex(indexName: string): Promise<void> {
  */
 export async function getDocumentCount(index: string): Promise<number> {
     try {
-        const result = await elasticSearchClient.count({index});
+        const result = await elasticSearchClient.count({ index });
         return result.count;
     } catch (error) {
         log.error(`Error getting document count from index ${index}`, error);
@@ -94,9 +93,9 @@ export async function getDocumentCount(index: string): Promise<number> {
  * @param {string} itemId - The ID of the document to retrieve.
  * @return {Promise<ISellerGig>} A promise that resolves to the document if found, otherwise an empty object.
  */
-export async function getIndexedData(index: string, itemId: string): Promise<ISellerGig>{
+export async function getIndexedData(index: string, itemId: string): Promise<ISellerGig> {
     try {
-        const result: estypes.GetResponse = await elasticSearchClient.get({index, id: itemId});
+        const result: estypes.GetResponse = await elasticSearchClient.get({ index, id: itemId });
         if (result.found) {
             return result._source as ISellerGig;
         }
@@ -124,7 +123,7 @@ export async function addDataToIndex(index: string, itemId: string, document: un
             id: itemId,
             document: document
         });
-        await elasticSearchClient.indices.refresh({index});
+        await elasticSearchClient.indices.refresh({ index });
         log.info(`Data added to index ${index} successfully`);
     } catch (error) {
         log.error(`Error adding data to index ${index}`, error);
@@ -147,7 +146,7 @@ export async function updateIndexedData(index: string, itemId: string, document:
             id: itemId,
             doc: document
         });
-        await elasticSearchClient.indices.refresh({index});
+        await elasticSearchClient.indices.refresh({ index });
         log.info(`Data updated in index ${index} successfully`);
     } catch (error) {
         log.error(`Error adding data to index ${index}`, error);
@@ -168,7 +167,7 @@ export async function deleteIndexedData(index: string, itemId: string): Promise<
             index: index,
             id: itemId
         });
-        await elasticSearchClient.indices.refresh({index});
+        await elasticSearchClient.indices.refresh({ index });
         log.info(`Data deleted from index ${index} successfully`);
     } catch (error) {
         log.error(`Error deleting data from index ${index}`, error);
