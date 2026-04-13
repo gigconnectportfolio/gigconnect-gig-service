@@ -1,59 +1,58 @@
-# 1. Define ARG at the top so it's available to all stages
-ARG NPM_TOKEN
-
-# -------------------------------------------
+# ================================
+# Build Stage
+# ================================
 FROM node:20-alpine AS build
+
+# Declare ARG inside the stage it is used
 ARG NPM_TOKEN
-ENV NPM_TOKEN_TO_USE=${NPM_TOKEN}
-# -------------------------------------------
 
 WORKDIR /app
 
+# Copy dependency files
 COPY package*.json ./
-COPY tsconfig.json ./
-COPY tsconfig.jest.json ./
+COPY tsconfig*.json ./
 
-RUN echo "Creating .npmrc file now." && \
-    echo "@kariru-k:registry=https://npm.pkg.github.com/kariru-k" > .npmrc && \
-    echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN_TO_USE}" >> .npmrc
+# 1. Create .npmrc, Install ALL (including devDeps), and Build
+RUN echo "@kariru-k:registry=https://npm.pkg.github.com/" > .npmrc && \
+    echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc && \
+    npm ci && \
+    rm -f .npmrc
 
-RUN echo "--- .npmrc contents for build stage ---" && cat .npmrc
-
-RUN npm ci
-
+# Copy source and scripts
 COPY src ./src
 COPY nodemon.json ./
-COPY scripts/fix-js-extensions.js ./scripts/fix-js-extensions.js
+COPY scripts/ ./scripts/
 
-# Build project (tsc + tsc-alias + tsx scripts)
-RUN npm run build
+# Build and fix imports
+RUN npm run build && node scripts/fix-js-extensions.js
 
-# Fix relative imports in compiled JS to include .js extensions
-RUN node scripts/fix-js-extensions.js
+# 2. THE SECRET SAUCE: Prune devDependencies while we are still in the build stage
+# Re-create .npmrc briefly just to prune (sometimes needed for private checks)
+RUN echo "@kariru-k:registry=https://npm.pkg.github.com/" > .npmrc && \
+    echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc && \
+    npm prune --omit=dev && \
+    rm -f .npmrc
 
-# -------------------------------------------
+
+# ================================
+# Production Stage (STAYS CLEAN)
+# ================================
 FROM node:20-alpine AS production
-ARG NPM_TOKEN
-ENV NPM_TOKEN_TO_USE=${NPM_TOKEN}
-# -------------------------------------------
 
 WORKDIR /app
 
+# Install runtime tools (curl for healthchecks, pm2 for process management)
 RUN apk add --no-cache curl && npm install -g pm2
 
+# Copy package.json so npm knows how to run the start script
 COPY package*.json ./
-COPY tsconfig.json ./
-COPY tsconfig.jest.json ./
-COPY nodemon.json ./
 
-RUN echo "@kariru-k:registry=https://npm.pkg.github.com/kariru-k" > .npmrc && \
-    echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN_TO_USE}" >> .npmrc
-
-RUN echo "--- .npmrc contents for production stage ---" && cat .npmrc
-
-RUN npm ci --omit=dev
-
+# 3. Copy ONLY the production-ready node_modules from the build stage
+# No NPM_TOKEN needed in this stage at all!
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/build ./build
 
 EXPOSE 4004
-CMD ["npm", "run", "start"]
+
+# Using PM2 to run the app is better for production stability
+CMD ["pm2-runtime", "start", "build/index.js"]
