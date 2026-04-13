@@ -88,7 +88,6 @@ describe('Gig Controller', () => {
             jest.spyOn(helper, 'uploads').mockImplementation(() => Promise.resolve({public_id: 'some-id', secure_url: 'some-url'} as UploadApiResponse))
             jest.spyOn(elasticsearch, 'getDocumentCount').mockResolvedValue(1)
             jest.spyOn(gigService, 'createGig').mockResolvedValue(sellerGig)
-
             gigCreate(req, res, next).then(() => {
                 expect(res.status).toHaveBeenCalledWith(201);
                 expect(res.json).toHaveBeenCalledWith({
